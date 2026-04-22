@@ -114,10 +114,65 @@ def compute_batting_stats(df, player):
     spin_sub = {code: _line_for(bat[bat['Bowler Type'] == code])
                 for code in ['ROB', 'RLB', 'LOB', 'LWS']}
 
+    # ── Dismissal breakdown ──────────────────────────────────────────────────
+    wkt_col_bat = bat['Wicket'].fillna('').astype(str).str.strip()
+    dismissed   = bat[wkt_col_bat.ne('')]
+    dismissal_counts = {}
+    total_dismissals = 0
+    for val in dismissed['Wicket']:
+        v = str(val).strip().split(',')[0].strip()
+        if v:
+            dismissal_counts[v] = dismissal_counts.get(v, 0) + 1
+            total_dismissals += 1
+    dismissal_pct = {
+        dtype: {'count': cnt,
+                'pct': round(cnt / total_dismissals * 100, 1) if total_dismissals else 0.0}
+        for dtype, cnt in sorted(dismissal_counts.items(), key=lambda x: -x[1])
+    }
+
+    # ── Shot-type stats (sweep/scoop/lap + OTT) ──────────────────────────────
+    SWEEP_SHOTS = {'Sweep', 'Reverse Sweep', 'Slog Sweep', 'Scoop', 'Lap', 'Reverse Scoop'}
+    DRIVE_SHOTS = {'Off Side Drive', 'On Side Drive'}
+
+    faced_df = bat[~_is_wide(bat)].copy()
+    total_balls = len(faced_df)
+
+    shot_stats = {}  # label -> {count, runs, pct}
+
+    if 'Shot' in faced_df.columns:
+        shot_col   = faced_df['Shot'].fillna('').astype(str).str.strip()
+        events_col = faced_df['Events'].fillna('').astype(str) if 'Events' in faced_df.columns else pd.Series([''] * len(faced_df), index=faced_df.index)
+
+        # Sweep family — by Shot value
+        for s in sorted(SWEEP_SHOTS):
+            mask  = shot_col == s
+            count = int(mask.sum())
+            if count:
+                runs = int(faced_df.loc[mask, 'Runs'].sum())
+                shot_stats[s] = {
+                    'count': count,
+                    'runs':  runs,
+                    'pct':   round(count / total_balls * 100, 1) if total_balls else 0.0,
+                }
+
+        # OTT — Off/On Side Drive with "In Air" in Events
+        for s in sorted(DRIVE_SHOTS):
+            mask = (shot_col == s) & events_col.str.contains('In Air', na=False)
+            count = int(mask.sum())
+            if count:
+                runs = int(faced_df.loc[mask, 'Runs'].sum())
+                label = f'{s} (OTT)'
+                shot_stats[label] = {
+                    'count': count,
+                    'runs':  runs,
+                    'pct':   round(count / total_balls * 100, 1) if total_balls else 0.0,
+                }
+
     return {
-        'name':     player,
-        'hand':     hand_full,
-        'overall':  _batting_line(faced),
+        'name':        player,
+        'hand':        hand_full,
+        'overall':     _batting_line(faced),
+        'total_balls': total_balls,
         'seam':   {'overall': _line_for(seam_df),
                    'right':   _line_for(rseam_df),
                    'left':    _line_for(lseam_df),
@@ -125,6 +180,8 @@ def compute_batting_stats(df, player):
         'spin':   {'overall': _line_for(spin_df),
                    'sub':     spin_sub,
                    'df':      spin_df},
+        'dismissals':  {'counts': dismissal_pct, 'total': total_dismissals},
+        'shot_stats':  shot_stats,
     }
 
 def compute_bowling_stats(df, player):
@@ -182,6 +239,19 @@ def compute_bowling_stats(df, player):
             best_w, best_r = ww, rr
     best_str = f"{best_w}/{best_r}" if best_w > 0 else '-'
 
+    # ── Dismissal type breakdown ─────────────────────────────────────────────
+    bowl_dismissed   = bowl[wkt_mask]
+    bowl_dis_counts  = {}
+    for val in bowl_dismissed['Wicket']:
+        v = str(val).strip().split(',')[0].strip()
+        if v and 'Run Out' not in v:
+            bowl_dis_counts[v] = bowl_dis_counts.get(v, 0) + 1
+    bowl_dis_pct = {
+        dtype: {'count': cnt,
+                'pct': round(cnt / wickets * 100, 1) if wickets else 0.0}
+        for dtype, cnt in sorted(bowl_dis_counts.items(), key=lambda x: -x[1])
+    }
+
     return {
         'name':         player,
         'bowl_type':    bt_full,
@@ -197,6 +267,7 @@ def compute_bowling_stats(df, player):
         'best':         best_str,
         'matches':      matches,
         'df':           bowl,
+        'dismissals':   {'counts': bowl_dis_pct, 'total': wickets},
     }
 
 # ─── DISPLAY HELPERS ──────────────────────────────────────────────────────────
@@ -247,6 +318,73 @@ def drop_zone(id_, dtype, label):
 
 def stat_cell(val):
     return f'<td class="stat-val">{esc(str(val))}</td>'
+
+# ── Colour palette for bar charts ─────────────────────────────────────────────
+_BAR_COLOURS = ['#00703C', '#c9a227', '#c8102e', '#3498db', '#8e44ad', '#e67e22', '#16a085']
+
+def _dismissal_bars_html(dis_data):
+    """Horizontal bar chart of dismissal types: count + %."""
+    counts = dis_data.get('counts', {})
+    total  = dis_data.get('total', 0)
+    if not counts or total == 0:
+        return '<p style="font-size:11px;color:var(--grey-mid);margin:4px 0;">No dismissal data</p>'
+    rows = ''
+    for i, (dtype, info) in enumerate(counts.items()):
+        colour = _BAR_COLOURS[i % len(_BAR_COLOURS)]
+        rows += f"""<div class="dis-bar-row">
+          <div class="dis-bar-label">{esc(dtype)}</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:{info['pct']}%;background:{colour};"></div></div>
+          <div class="dis-bar-meta">{info['count']} <span class="dis-bar-pct">({info['pct']}%)</span></div>
+        </div>"""
+    return f'<div class="dis-bars">{rows}</div>'
+
+# Shot category groupings for display
+_SWEEP_GROUP = ['Sweep', 'Reverse Sweep', 'Slog Sweep', 'Scoop', 'Lap', 'Reverse Scoop']
+_OTT_GROUP   = ['Off Side Drive (OTT)', 'On Side Drive (OTT)']
+
+def _shot_stats_html(shot_stats, total_balls):
+    """Render sweep/scoop/lap and OTT shot type tables: count, runs, %."""
+    def _group_rows(keys):
+        rows = ''
+        for key in keys:
+            info = shot_stats.get(key)
+            if not info:
+                continue
+            rows += f"""<tr>
+              <td class="shot-name">{esc(key)}</td>
+              <td class="shot-num">{info['count']}</td>
+              <td class="shot-num">{info['runs']}</td>
+              <td class="shot-num shot-pct">{info['pct']}%</td>
+            </tr>"""
+        return rows
+
+    def _group_total(keys):
+        c = sum(shot_stats[k]['count'] for k in keys if k in shot_stats)
+        r = sum(shot_stats[k]['runs']  for k in keys if k in shot_stats)
+        p = round(c / total_balls * 100, 1) if total_balls and c else 0.0
+        return c, r, p
+
+    def _block(title, icon, keys):
+        rows = _group_rows(keys)
+        tot_c, tot_r, tot_p = _group_total(keys)
+        if not rows:
+            body = '<p style="font-size:11px;color:var(--grey-mid);margin:4px 0;">None recorded</p>'
+        else:
+            body = f"""<table class="shot-table">
+              <thead><tr><th>Shot</th><th>Count</th><th>Runs</th><th>%&nbsp;balls</th></tr></thead>
+              <tbody>{rows}</tbody>
+              <tfoot><tr><td>Total</td><td>{tot_c}</td><td>{tot_r}</td><td>{tot_p}%</td></tr></tfoot>
+            </table>"""
+        return f'''<div class="shot-block">
+          <div class="shot-block-hdr">{icon} {esc(title)}</div>
+          {body}
+        </div>'''
+
+    return f'''<div class="shot-stats-wrap">
+      {_block("Sweep / Scoop / Lap", "&#x1F9F9;", _SWEEP_GROUP)}
+      {_block("Over The Top", "&#x1F680;", _OTT_GROUP)}
+    </div>'''
+
 
 # ─── SVG GENERATORS ───────────────────────────────────────────────────────────
 
@@ -592,6 +730,17 @@ def build_batsman_card(n, stats):
       </div>
       {seam_section}
       {spin_section}
+
+      <div class="batter-extra-stats">
+        <div class="batter-extra-section">
+          <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:12px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Dismissal Breakdown</h4>
+          {_dismissal_bars_html(stats.get('dismissals', {}))}
+        </div>
+        <div class="batter-extra-section">
+          <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:12px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Shot Type Analysis</h4>
+          {_shot_stats_html(stats.get('shot_stats', {}), stats.get('total_balls', 0))}
+        </div>
+      </div>
     </div>
   </div>'''
 
@@ -661,11 +810,17 @@ def build_bowler_card(n, stats):
       </div>
 
       <div style="margin-bottom:20px;">
-        <h4 {SECTION_H4}>Pitch Maps</h4>
-        <div class="images-two-col">
+        <h4 {SECTION_H4}>Pitch Maps &amp; Wagon Wheel</h4>
+        <div class="images-three-col">
           {_titled_map('Wickets', _svg_or_drop(stats.get('df'), 'wickets', card_id, 'dw_pitchmap', 'Wickets Pitchmap'))}
-          {_titled_map('Boundaries Conceded', _svg_or_drop(stats.get('df'), 'boundaries', card_id, 'bd_pitchmap', 'Pitch Map'))}
+          {_titled_map('Boundaries Conceded (Pitch)', _svg_or_drop(stats.get('df'), 'boundaries', card_id, 'bd_pitchmap', 'Boundaries Pitchmap'))}
+          {_titled_map('Boundaries Conceded (Wagon Wheel)', _svg_or_drop(stats.get('df'), 'wagon_boundaries', card_id, 'bd_wagon', 'Boundaries Wagon Wheel'))}
         </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <h4 {SECTION_H4}>Dismissal Breakdown</h4>
+        {_dismissal_bars_html(stats.get('dismissals', {}))}
       </div>
 
       <div class="card-notes" style="margin-bottom:16px;">
@@ -860,6 +1015,58 @@ CSS = r"""
   .doc-footer { background: var(--navy); border-radius: 0 0 12px 12px; padding: 16px 28px; display: flex; justify-content: space-between; align-items: center; color: rgba(255,255,255,.4); font-size: 11px; }
   .doc-footer input { background: transparent; border: none; color: rgba(255,255,255,.5); font-family: 'DM Sans', sans-serif; font-size: 11px; }
 
+  /* DISMISSAL BARS */
+  .dis-bars { display: flex; flex-direction: column; gap: 8px; }
+  .dis-bar-row { display: flex; align-items: center; gap: 10px; }
+  .dis-bar-label { width: 100px; flex-shrink: 0; font-size: 11px; color: var(--text-light); font-weight: 500; }
+  .dis-bar-track { flex: 1; background: var(--grey-border); border-radius: 4px; height: 10px; overflow: hidden; }
+  .dis-bar-fill  { height: 100%; border-radius: 4px; }
+  .dis-bar-meta  { width: 80px; flex-shrink: 0; font-size: 11px; font-weight: 600; color: var(--text); text-align: right; }
+  .dis-bar-pct   { opacity: 0.55; font-weight: 400; }
+
+  /* SHOT STATS */
+  .batter-extra-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+  @media(max-width:640px) { .batter-extra-stats { grid-template-columns: 1fr; } }
+  .batter-extra-section { background: var(--grey-bg); border-radius: 8px; padding: 16px; border: 1px solid var(--grey-border); }
+  .shot-stats-wrap { display: flex; flex-direction: column; gap: 16px; }
+  .shot-block-hdr { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--navy); margin-bottom: 8px; }
+  .shot-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .shot-table th { background: #1a1a1a; color: #c9a227; font-size: 9px; text-transform: uppercase; letter-spacing: .5px; padding: 5px 8px; text-align: left; font-weight: 600; }
+  .shot-table th:not(:first-child) { text-align: right; }
+  .shot-table td { padding: 5px 8px; border-bottom: 1px solid var(--grey-border); }
+  .shot-table tr:last-child td { border-bottom: none; }
+  .shot-table tr:nth-child(even) td { background: rgba(0,0,0,.025); }
+  .shot-table tfoot td { font-weight: 700; color: var(--navy); background: rgba(0,112,60,.06) !important; border-top: 1px solid var(--grey-border); }
+  .shot-name { color: var(--text-light); font-weight: 500; }
+  .shot-num  { text-align: right; font-weight: 600; color: var(--navy); }
+  .shot-pct  { color: var(--grey-mid); font-weight: 400; }
+
+  /* DISMISSAL BARS */
+  .dis-bars { display: flex; flex-direction: column; gap: 8px; }
+  .dis-bar-row { display: flex; align-items: center; gap: 10px; }
+  .dis-bar-label { width: 100px; flex-shrink: 0; font-size: 11px; color: var(--text-light); font-weight: 500; }
+  .dis-bar-track { flex: 1; background: var(--grey-border); border-radius: 4px; height: 10px; overflow: hidden; }
+  .dis-bar-fill  { height: 100%; border-radius: 4px; }
+  .dis-bar-meta  { width: 80px; flex-shrink: 0; font-size: 11px; font-weight: 600; color: var(--text); text-align: right; }
+  .dis-bar-pct   { opacity: 0.55; font-weight: 400; }
+
+  /* SHOT STATS */
+  .batter-extra-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+  @media(max-width:640px) { .batter-extra-stats { grid-template-columns: 1fr; } }
+  .batter-extra-section { background: var(--grey-bg); border-radius: 8px; padding: 16px; border: 1px solid var(--grey-border); }
+  .shot-stats-wrap { display: flex; flex-direction: column; gap: 16px; }
+  .shot-block-hdr { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--navy); margin-bottom: 8px; }
+  .shot-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .shot-table th { background: #1a1a1a; color: #c9a227; font-size: 9px; text-transform: uppercase; letter-spacing: .5px; padding: 5px 8px; text-align: left; font-weight: 600; }
+  .shot-table th:not(:first-child) { text-align: right; }
+  .shot-table td { padding: 5px 8px; border-bottom: 1px solid var(--grey-border); }
+  .shot-table tr:last-child td { border-bottom: none; }
+  .shot-table tr:nth-child(even) td { background: rgba(0,0,0,.025); }
+  .shot-table tfoot td { font-weight: 700; color: var(--navy); background: rgba(0,112,60,.06) !important; border-top: 1px solid var(--grey-border); }
+  .shot-name { color: var(--text-light); font-weight: 500; }
+  .shot-num  { text-align: right; font-weight: 600; color: var(--navy); }
+  .shot-pct  { color: var(--grey-mid); font-weight: 400; }
+
   /* PRINT */
   @page { size: A4 portrait; margin: 12mm 10mm; }
   @media print {
@@ -873,6 +1080,7 @@ CSS = r"""
     * { max-width:100% !important; overflow:visible !important; word-break:break-word; }
     img { max-width:100% !important; height:auto !important; }
     textarea { min-height:0 !important; }
+    .notes-panel:has(textarea:placeholder-shown) { display:none !important; }
   }
 </style>
 """
@@ -1049,7 +1257,7 @@ def generate_html(bat_stats_list, bowl_stats_list, meta):
   </div>
 
   <div class="doc-footer">
-    <span>Prepared by: <input type="text" placeholder="Analyst name" style="width:140px;"></span>
+    <span>Prepared by: Aadam Hassan</span>
     <span>Pre-Game Analysis Pack — <input type="text" placeholder="Season / Competition" style="width:180px;"></span>
     <span>CONFIDENTIAL</span>
   </div>
