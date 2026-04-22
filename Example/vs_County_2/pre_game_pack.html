@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pre-Game Analysis Pack — County 2</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --navy: #00703C;
+    --navy-mid: #005a30;
+    --accent: #c9a227;
+    --accent-light: #f5e89a;
+    --red: #c0392b;
+    --red-light: #f9e8e6;
+    --green: #1a7a4a;
+    --green-light: #e6f5ed;
+    --amber: #d4820a;
+    --grey-bg: #f4f6f9;
+    --grey-border: #dde3ed;
+    --grey-mid: #8a95a8;
+    --white: #ffffff;
+    --text: #1c2533;
+    --text-light: #5a6678;
+    --bowling-red: #c8102e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--grey-bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+
+  /* TOOLBAR */
+  .toolbar { background: var(--navy); color: var(--white); padding: 14px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,.25); }
+  .toolbar-brand { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--accent); margin-right: auto; letter-spacing: .3px; }
+  .btn { padding: 8px 18px; border-radius: 6px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: 13px; transition: all .15s; }
+  .btn-primary { background: var(--accent); color: var(--navy); }
+  .btn-primary:hover { background: var(--accent-light); }
+  .btn-outline { background: transparent; color: var(--white); border: 1.5px solid rgba(255,255,255,.3); }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-bat  { background: #1a1a1a; color: #c9a227; }
+  .btn-bat:hover  { background: #333; }
+  .btn-bowl { background: var(--bowling-red); color: white; }
+  .btn-bowl:hover { background: #a00d25; }
+
+  /* DOCUMENT */
+  .document { max-width: 960px; margin: 28px auto; padding: 0 16px 60px; }
+
+  /* MATCH HEADER */
+  .match-header { background: var(--navy); border-radius: 12px 12px 0 0; padding: 32px 36px 28px; color: white; position: relative; overflow: hidden; }
+  .match-header::before { content:''; position:absolute; top:-40px; right:-40px; width:200px; height:200px; border-radius:50%; background:rgba(200,168,75,.08); pointer-events:none; }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
+  .header-left .subtitle { color: var(--accent); font-size: 13px; font-weight: 500; letter-spacing: .5px; text-transform: uppercase; }
+  .header-meta { display: flex; gap: 24px; flex-wrap: wrap; }
+  .meta-item { text-align: right; }
+  .meta-item label { font-size: 11px; text-transform: uppercase; letter-spacing: .6px; color: rgba(255,255,255,.5); display: block; margin-bottom: 2px; }
+  .meta-item .meta-val { font-size: 15px; font-weight: 600; color: white; background: transparent; border: none; border-bottom: 1.5px solid rgba(255,255,255,.2); font-family: 'DM Sans', sans-serif; text-align: right; width: 160px; padding: 2px 4px; }
+  .meta-item .meta-val:focus { outline: none; border-bottom-color: var(--accent); }
+  .team-input { background: transparent; border: none; border-bottom: 2px solid rgba(255,255,255,.3); color: white; font-family: 'DM Serif Display', serif; font-size: 28px; width: 100%; padding: 2px 0; }
+  .team-input:focus { outline: none; border-bottom-color: var(--accent); }
+  .team-input::placeholder { color: rgba(255,255,255,.35); }
+  .header-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 12px; background: rgba(255,255,255,.06); border-radius: 8px; padding: 16px 20px; margin-top: 8px; }
+  .summary-stat label { font-size: 10px; text-transform: uppercase; letter-spacing: .7px; color: rgba(255,255,255,.5); display: block; margin-bottom: 4px; }
+  .summary-stat input { background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,.2); color: white; font-family: 'DM Sans', sans-serif; font-size: 20px; font-weight: 700; width: 100%; padding: 2px 0; }
+  .summary-stat input:focus { outline: none; border-bottom-color: var(--accent); }
+
+  /* SECTION HEADERS */
+  .section-header { display: flex; align-items: center; gap: 10px; padding: 14px 36px; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: white; }
+  .section-header.batting { background: #1a1a1a; color: #c9a227; }
+  .section-header.bowling-threats { background: var(--bowling-red); }
+  .section-icon { font-size: 16px; }
+
+  /* CARDS */
+  .players-container, .bowlers-container { background: white; }
+  .player-card, .bowler-card { border-bottom: 1px solid var(--grey-border); position: relative; }
+  .player-card:last-child, .bowler-card:last-child { border-bottom: none; }
+  .player-card-inner, .bowler-card-inner-wrap { padding: 24px 28px; }
+
+  .card-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
+  .player-number, .bowler-number { width: 36px; height: 36px; border-radius: 50%; font-family: 'DM Serif Display', serif; font-size: 16px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 4px; }
+  .player-number { background: #1a1a1a; color: #c9a227; }
+  .bowler-number { background: var(--bowling-red); color: white; }
+  .player-info, .bowler-info { flex: 1; min-width: 200px; }
+  .player-name-input, .bowler-name-input { font-family: 'DM Serif Display', serif; font-size: 20px; border: none; border-bottom: 2px solid var(--grey-border); width: 100%; padding: 2px 4px; background: transparent; }
+  .player-name-input { color: var(--navy); }
+  .bowler-name-input { color: var(--bowling-red); }
+  .player-name-input:focus { outline: none; border-bottom-color: var(--navy); }
+  .bowler-name-input:focus { outline: none; border-bottom-color: var(--bowling-red); }
+  .player-name-input::placeholder, .bowler-name-input::placeholder { color: #bbb; font-size: 18px; }
+
+  .player-meta-row, .bowler-meta-row { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; align-items: center; }
+  .player-meta-row select, .bowler-meta-row select { border: 1.5px solid var(--grey-border); border-radius: 5px; padding: 5px 10px; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--text); background: var(--grey-bg); }
+
+  .threat-badge { padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; }
+  .threat-HIGH   { background: var(--red);   color: white; }
+  .threat-MEDIUM { background: var(--amber); color: white; }
+  .threat-LOW    { background: var(--green); color: white; }
+  .threat-UNKNOWN { background: #ccc; color: #555; }
+
+  .delete-card-btn { position: absolute; top: 16px; right: 20px; background: none; border: none; color: var(--grey-mid); cursor: pointer; font-size: 18px; line-height: 1; padding: 4px 6px; border-radius: 4px; transition: all .15s; }
+  .delete-card-btn:hover { background: var(--red-light); color: var(--red); }
+
+  /* BOWLING TYPE SECTION */
+  .bowling-type-section { margin-bottom: 20px; border: 1.5px solid var(--grey-border); border-radius: 8px; overflow: hidden; }
+  .bowling-type-section:last-child { margin-bottom: 0; }
+  .bowling-type-header { display: flex; align-items: center; gap: 10px; padding: 10px 16px; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .seam-header { background: #1a1a1a; color: #c9a227; border-left: 4px solid #c9a227; }
+  .spin-header { background: #1a1a1a; color: #c9a227; border-left: 4px solid #c9a227; }
+  .bowling-type-body { padding: 16px; background: white; }
+
+  /* OVERALL STATS BAR */
+  .stats-overall-bar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+  .overall-chip { background: var(--grey-bg); border-radius: 8px; padding: 10px 16px; display: flex; flex-direction: column; align-items: center; min-width: 100px; flex: 1; }
+  .chip-label { font-size: 9px; text-transform: uppercase; letter-spacing: .7px; color: var(--grey-mid); margin-bottom: 4px; }
+  .chip-val { font-size: 20px; font-weight: 700; color: var(--navy); }
+
+  /* BREAKDOWN TABLE */
+  .breakdown-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 14px; }
+  .breakdown-table th { background: #1a1a1a; color: #c9a227; font-size: 9px; text-transform: uppercase; letter-spacing: .6px; padding: 6px 8px; text-align: left; font-weight: 600; }
+  .breakdown-table td { padding: 6px 8px; border-bottom: 1px solid var(--grey-border); }
+  .breakdown-table tr:last-child td { border-bottom: none; }
+  .breakdown-table tr:nth-child(even) td { background: var(--grey-bg); }
+  .breakdown-table .stat-val { font-weight: 600; color: var(--navy); }
+  .breakdown-table .breakdown-type { color: var(--text-light); font-weight: 500; }
+
+  /* IMAGE ZONES — 3-col for batting, 2-col for bowling */
+  .images-three-col { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 4px; }
+  .images-two-col   { display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin-bottom: 4px; }
+  @media(max-width:600px) { .images-three-col,.images-two-col { grid-template-columns: 1fr; } }
+
+  .image-drop-zone { border: 2px dashed var(--grey-border); border-radius: 8px; aspect-ratio: 1/1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; position: relative; overflow: hidden; background: var(--grey-bg); }
+  .image-drop-zone:hover { border-color: var(--navy); background: #eef1f8; }
+  .image-drop-zone.dragover { border-color: var(--accent); background: #fdf8ec; }
+  .image-drop-zone .drop-label { font-size: 11px; color: var(--grey-mid); text-align: center; padding: 8px; pointer-events: none; }
+  .image-drop-zone .drop-icon { font-size: 22px; margin-bottom: 4px; pointer-events: none; }
+  .image-drop-zone img { width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0; border-radius: 6px; }
+  .image-drop-zone .remove-img { position: absolute; top: 4px; right: 4px; background: rgba(0,0,0,.5); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px; display: none; align-items: center; justify-content: center; }
+  .image-drop-zone:has(img):hover .remove-img { display: flex; }
+  .image-drop-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; pointer-events: none; }
+
+  .pitch-map-title { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--text); font-weight: 700; margin-bottom: 8px; padding: 5px 8px 5px 10px; background: rgba(0,0,0,.05); border-radius: 4px; border-left: 3px solid var(--text); }
+
+  /* NOTES */
+  .card-notes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:600px) { .card-notes { grid-template-columns: 1fr; } }
+  .notes-panel textarea { width: 100%; border: 1.5px solid var(--grey-border); border-radius: 6px; padding: 10px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); resize: vertical; overflow: hidden; min-height: 80px; background: var(--grey-bg); transition: border-color .15s; }
+  .notes-panel textarea:focus { outline: none; }
+  .notes-panel.strength { background: #fdf9ec; border-radius: 8px; padding: 12px; }
+  .notes-panel.weakness { background: #fdf2f2; border-radius: 8px; padding: 12px; }
+  .notes-panel.strength textarea:focus { border-color: var(--green); }
+  .notes-panel.weakness textarea:focus { border-color: var(--red); }
+  .notes-panel.strength textarea { background: #fffdf5; }
+  .notes-panel.weakness textarea { background: #fff8f8; }
+  .notes-panel h4 { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; font-weight: 700; margin-bottom: 10px; padding: 5px 8px 5px 10px; border-radius: 4px; border-left: 3px solid; }
+  .notes-panel.strength h4 { color: var(--green); border-left-color: var(--green); background: rgba(26,122,74,.07); }
+  .notes-panel.weakness h4 { color: var(--red);   border-left-color: var(--red);   background: rgba(192,57,43,.07); }
+
+  /* BOWLING PLAN */
+  .bowling-plan-area textarea { width: 100%; border: 1.5px solid #e8d0d0; border-radius: 6px; padding: 10px 12px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); resize: vertical; overflow: hidden; min-height: 80px; background: white; }
+  .bowling-plan-area textarea:focus { outline: none; border-color: var(--bowling-red); }
+  .bowling-plan-area h4 { font-size: 11px; text-transform: uppercase; letter-spacing: .8px; color: var(--bowling-red); font-weight: 700; margin-bottom: 10px; padding: 5px 8px 5px 10px; background: rgba(192,57,43,.07); border-radius: 4px; border-left: 3px solid var(--bowling-red); }
+
+  /* MINI STATS (bowler card) */
+  .mini-stats { display: grid; gap: 8px; margin-bottom: 12px; }
+  .mini-stats.cols-5 { grid-template-columns: repeat(5,1fr); }
+  .mini-stats.cols-4 { grid-template-columns: repeat(4,1fr); }
+  @media(max-width:600px) { .mini-stats.cols-5,.mini-stats.cols-4 { grid-template-columns: repeat(3,1fr); } }
+  .mini-stat { background: var(--grey-bg); border-radius: 6px; padding: 8px 10px; text-align: center; }
+  .mini-stat label { font-size: 9px; text-transform: uppercase; letter-spacing: .6px; color: var(--grey-mid); display: block; margin-bottom: 3px; }
+  .mini-stat input { background: transparent; border: none; text-align: center; font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 700; color: var(--navy); width: 100%; }
+  .mini-stat input:focus { outline: none; }
+  .mini-stat input::placeholder { font-size: 13px; color: #bbb; font-weight: 400; }
+
+  /* ADD ROW */
+  .add-player-row, .add-bowler-row { padding: 20px 28px; background: white; border-top: 2px dashed var(--grey-border); text-align: center; }
+
+  /* FOOTER */
+  .doc-footer { background: var(--navy); border-radius: 0 0 12px 12px; padding: 16px 28px; display: flex; justify-content: space-between; align-items: center; color: rgba(255,255,255,.4); font-size: 11px; }
+  .doc-footer input { background: transparent; border: none; color: rgba(255,255,255,.5); font-family: 'DM Sans', sans-serif; font-size: 11px; }
+
+  /* DISMISSAL BARS */
+  .dis-bars { display: flex; flex-direction: column; gap: 8px; }
+  .dis-bar-row { display: flex; align-items: center; gap: 10px; }
+  .dis-bar-label { width: 100px; flex-shrink: 0; font-size: 11px; color: var(--text-light); font-weight: 500; }
+  .dis-bar-track { flex: 1; background: var(--grey-border); border-radius: 4px; height: 10px; overflow: hidden; }
+  .dis-bar-fill  { height: 100%; border-radius: 4px; }
+  .dis-bar-meta  { width: 80px; flex-shrink: 0; font-size: 11px; font-weight: 600; color: var(--text); text-align: right; }
+  .dis-bar-pct   { opacity: 0.55; font-weight: 400; }
+
+  /* SHOT STATS */
+  .batter-extra-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+  @media(max-width:640px) { .batter-extra-stats { grid-template-columns: 1fr; } }
+  .batter-extra-section { background: var(--grey-bg); border-radius: 8px; padding: 16px; border: 1px solid var(--grey-border); }
+  .shot-stats-wrap { display: flex; flex-direction: column; gap: 16px; }
+  .shot-block-hdr { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--navy); margin-bottom: 8px; }
+  .shot-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .shot-table th { background: #1a1a1a; color: #c9a227; font-size: 9px; text-transform: uppercase; letter-spacing: .5px; padding: 5px 8px; text-align: left; font-weight: 600; }
+  .shot-table th:not(:first-child) { text-align: right; }
+  .shot-table td { padding: 5px 8px; border-bottom: 1px solid var(--grey-border); }
+  .shot-table tr:last-child td { border-bottom: none; }
+  .shot-table tr:nth-child(even) td { background: rgba(0,0,0,.025); }
+  .shot-table tfoot td { font-weight: 700; color: var(--navy); background: rgba(0,112,60,.06) !important; border-top: 1px solid var(--grey-border); }
+  .shot-name { color: var(--text-light); font-weight: 500; }
+  .shot-num  { text-align: right; font-weight: 600; color: var(--navy); }
+  .shot-pct  { color: var(--grey-mid); font-weight: 400; }
+
+  /* DISMISSAL BARS */
+  .dis-bars { display: flex; flex-direction: column; gap: 8px; }
+  .dis-bar-row { display: flex; align-items: center; gap: 10px; }
+  .dis-bar-label { width: 100px; flex-shrink: 0; font-size: 11px; color: var(--text-light); font-weight: 500; }
+  .dis-bar-track { flex: 1; background: var(--grey-border); border-radius: 4px; height: 10px; overflow: hidden; }
+  .dis-bar-fill  { height: 100%; border-radius: 4px; }
+  .dis-bar-meta  { width: 80px; flex-shrink: 0; font-size: 11px; font-weight: 600; color: var(--text); text-align: right; }
+  .dis-bar-pct   { opacity: 0.55; font-weight: 400; }
+
+  /* SHOT STATS */
+  .batter-extra-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+  @media(max-width:640px) { .batter-extra-stats { grid-template-columns: 1fr; } }
+  .batter-extra-section { background: var(--grey-bg); border-radius: 8px; padding: 16px; border: 1px solid var(--grey-border); }
+  .shot-stats-wrap { display: flex; flex-direction: column; gap: 16px; }
+  .shot-block-hdr { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--navy); margin-bottom: 8px; }
+  .shot-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .shot-table th { background: #1a1a1a; color: #c9a227; font-size: 9px; text-transform: uppercase; letter-spacing: .5px; padding: 5px 8px; text-align: left; font-weight: 600; }
+  .shot-table th:not(:first-child) { text-align: right; }
+  .shot-table td { padding: 5px 8px; border-bottom: 1px solid var(--grey-border); }
+  .shot-table tr:last-child td { border-bottom: none; }
+  .shot-table tr:nth-child(even) td { background: rgba(0,0,0,.025); }
+  .shot-table tfoot td { font-weight: 700; color: var(--navy); background: rgba(0,112,60,.06) !important; border-top: 1px solid var(--grey-border); }
+  .shot-name { color: var(--text-light); font-weight: 500; }
+  .shot-num  { text-align: right; font-weight: 600; color: var(--navy); }
+  .shot-pct  { color: var(--grey-mid); font-weight: 400; }
+
+  /* PRINT */
+  @page { size: A4 portrait; margin: 12mm 10mm; }
+  @media print {
+    .toolbar,.delete-card-btn,.add-player-row,.add-bowler-row,
+    .image-drop-zone input[type="file"],.remove-img { display: none !important; }
+    html,body { width:210mm; background:white !important; font-size:11px; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .document { width:190mm; max-width:190mm; margin:0 auto; padding:0; }
+    .player-card,.bowler-card { break-inside:avoid; page-break-inside:avoid; }
+    .match-header,.doc-footer { border-radius:0; }
+    input,textarea,select { border:none !important; background:transparent !important; resize:none !important; }
+    * { max-width:100% !important; overflow:visible !important; word-break:break-word; }
+    img { max-width:100% !important; height:auto !important; }
+    textarea { min-height:0 !important; }
+    .notes-panel:has(textarea:placeholder-shown) { display:none !important; }
+  }
+</style>
+
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="toolbar-brand">Pre-Game Pack Builder</div>
+  <button class="btn btn-bat"  onclick="addBlankBatsman()">+ Add Batsman</button>
+  <button class="btn btn-bowl" onclick="addBlankBowler()">+ Add Bowler</button>
+  <button class="btn btn-outline" onclick="window.print()">Print / Export PDF</button>
+</div>
+
+<div class="document">
+
+  <div class="match-header">
+    <div class="header-top">
+      <div class="header-left" style="flex:1;min-width:220px;">
+        <div class="subtitle">Pre-Game Opposition Analysis</div>
+        <input class="team-input" placeholder="Opposition Team Name" value="County 2">
+      </div>
+      <div class="header-meta">
+        <div class="meta-item"><label>Date</label>
+          <input class="meta-val" type="text" placeholder="DD/MM/YYYY" value="15/05/2025"></div>
+        <div class="meta-item"><label>Venue</label>
+          <input class="meta-val" type="text" placeholder="Ground name" value="Example Ground"></div>
+        <div class="meta-item"><label>Format</label>
+          <input class="meta-val" type="text" placeholder="T20 / 50-over"></div>
+      </div>
+    </div>
+    <div class="header-summary">
+      <div class="summary-stat"><label>Competition</label>
+        <input type="text" placeholder="e.g. U18 County T20"></div>
+    </div>
+  </div>
+
+  <div class="section-header batting"><span class="section-icon">🏏</span> Player Profiles — Batting Threats</div>
+  <div class="players-container" id="playersContainer">
+    
+  <div class="player-card" id="batsman-1">
+    <button class="delete-card-btn no-print"
+      onclick="this.closest('.player-card').remove()" title="Remove">✕</button>
+    <div class="player-card-inner">
+      <div class="card-header">
+        <div class="player-number">1</div>
+        <div class="player-info">
+          <input class="player-name-input" value="Player 1" placeholder="Batsman Name">
+          <div class="player-meta-row">
+            <select title="Batting hand"><option></option><option selected>Right hand bat</option><option>Left hand bat</option></select>
+            <input type="text" placeholder="Role e.g. Opener / Middle order"
+              style="width:220px;border:1.5px solid var(--grey-border);border-radius:5px;
+                     padding:5px 10px;font-family:'DM Sans',sans-serif;font-size:12px;">
+            <button class="threat-badge threat-UNKNOWN" onclick="cycleThreat(this)">THREAT: UNKNOWN</button>
+          </div>
+        </div>
+      </div>
+      
+    <div class="bowling-type-section">
+      <div class="bowling-type-header seam-header"><span>🔴</span> vs Seam</div>
+      <div class="bowling-type-body">
+
+        <div class="stats-overall-bar">
+          <div class="overall-chip">
+            <span class="chip-label">Runs(Balls)</span>
+            <span class="chip-val">221(108)</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Strike Rate</span>
+            <span class="chip-val">205</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Boundary %</span>
+            <span class="chip-val">29.6%</span>
+          </div>
+        </div>
+
+        <table class="breakdown-table">
+          <thead><tr><th>Type</th><th>Runs(Balls)</th><th>SR</th><th>Bdry%</th><th>Dot%</th><th>Wkts</th></tr></thead>
+          <tbody>
+          <tr>
+            <td class="breakdown-type">Right arm seam</td>
+            <td class="stat-val">221(108)</td>
+            <td class="stat-val">205</td>
+            <td class="stat-val">29.6%</td>
+            <td class="stat-val">27%</td>
+            <td class="stat-val">2</td>
+          </tr>
+          <tr>
+            <td class="breakdown-type">Left arm seam</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+          </tr></tbody>
+        </table>
+
+        <div class="images-three-col">
+          <div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Wickets</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="87.6" cy="228.0" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="50.2" cy="32.0" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Wicket</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="49.8" cy="120.9" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="66.8" cy="90.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="42.2" cy="90.2" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="80.7" cy="148.9" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="47.8" cy="132.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="93.5" cy="213.2" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="96.3" cy="172.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="100.8" cy="176.8" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="66.5" cy="120.5" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="72.4" cy="61.5" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="38.7" cy="216.5" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="99.4" cy="78.2" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="54.3" cy="41.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="57.1" cy="233.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="57.8" cy="163.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="84.2" cy="33.5" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="39.4" cy="72.5" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="49.8" cy="231.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="93.9" cy="131.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="54.3" cy="119.7" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="89.7" cy="50.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="102.2" cy="61.7" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="92.5" cy="50.7" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="111.2" cy="38.9" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="121.6" cy="167.4" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="89.7" cy="150.6" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="98.0" cy="224.4" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="115.0" cy="45.9" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="98.0" cy="127.2" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="45.7" cy="113.6" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="40.5" cy="75.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="119.5" cy="95.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#f39c12" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Four</text><circle cx="64" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="70" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Six</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries Wagon Wheel</div><div class="image-drop-zone" id="drop-bat1-seam_ww" title="Click or drag" onclick="triggerFileInput(event,'bat1','seam_ww')"><div class="drop-icon">📷</div><div class="drop-label">Boundaries Wagon Wheel<br><span style="font-size:10px;opacity:0.6;">drag &amp; drop or click</span></div><input type="file" accept="image/*" id="file-bat1-seam_ww" onchange="handleFileInput(event,'bat1','seam_ww')"><button class="remove-img" onclick="event.stopPropagation();clearImage('bat1','seam_ww')" title="Remove">✕</button></div></div>
+        </div>
+
+        <div class="card-notes" style="margin-top:12px;">
+          <div class="notes-panel strength">
+            <h4>+ Strengths vs Seam</h4>
+            <textarea placeholder="Scoring areas, favoured shots, lines to avoid vs Seam..."></textarea>
+          </div>
+          <div class="notes-panel weakness">
+            <h4>- Weaknesses / Dismissal Patterns vs Seam</h4>
+            <textarea placeholder="Dismissal patterns, technical weaknesses, danger deliveries vs Seam..."></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+      
+    <div class="bowling-type-section">
+      <div class="bowling-type-header spin-header"><span>🟣</span> vs Spin</div>
+      <div class="bowling-type-body">
+
+        <div class="stats-overall-bar">
+          <div class="overall-chip">
+            <span class="chip-label">Runs(Balls)</span>
+            <span class="chip-val">223(124)</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Strike Rate</span>
+            <span class="chip-val">180</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Boundary %</span>
+            <span class="chip-val">23.4%</span>
+          </div>
+        </div>
+
+        <table class="breakdown-table">
+          <thead><tr><th>Type</th><th>Runs(Balls)</th><th>SR</th><th>Bdry%</th><th>Dot%</th><th>Wkts</th></tr></thead>
+          <tbody>
+          <tr>
+            <td class="breakdown-type">LOB — Left arm orthodox</td>
+            <td class="stat-val">223(124)</td>
+            <td class="stat-val">180</td>
+            <td class="stat-val">23.4%</td>
+            <td class="stat-val">36%</td>
+            <td class="stat-val">5</td>
+          </tr></tbody>
+        </table>
+
+        <div class="images-three-col">
+          <div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Wickets</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="105.3" cy="168.3" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="47.4" cy="176.0" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="116.7" cy="47.1" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="43.6" cy="194.1" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="84.5" cy="128.8" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Wicket</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="58.9" cy="82.7" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="74.5" cy="114.8" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="58.5" cy="224.4" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="121.6" cy="29.6" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="117.1" cy="31.2" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="84.9" cy="37.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="84.2" cy="213.2" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="115.0" cy="96.3" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="117.4" cy="48.1" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="59.5" cy="79.4" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="39.8" cy="176.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="121.3" cy="215.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="100.1" cy="72.7" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="82.1" cy="240.7" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="80.0" cy="194.9" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="53.0" cy="48.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="84.2" cy="190.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="92.8" cy="77.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="48.1" cy="139.8" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="60.6" cy="110.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="105.7" cy="136.3" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="93.5" cy="35.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="120.6" cy="227.2" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="87.6" cy="146.7" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="52.6" cy="41.6" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="68.6" cy="162.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="108.4" cy="95.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="94.9" cy="41.4" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="111.2" cy="67.6" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#f39c12" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Four</text><circle cx="64" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="70" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Six</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries Wagon Wheel</div><div class="image-drop-zone" id="drop-bat1-spin_ww" title="Click or drag" onclick="triggerFileInput(event,'bat1','spin_ww')"><div class="drop-icon">📷</div><div class="drop-label">Boundaries Wagon Wheel<br><span style="font-size:10px;opacity:0.6;">drag &amp; drop or click</span></div><input type="file" accept="image/*" id="file-bat1-spin_ww" onchange="handleFileInput(event,'bat1','spin_ww')"><button class="remove-img" onclick="event.stopPropagation();clearImage('bat1','spin_ww')" title="Remove">✕</button></div></div>
+        </div>
+
+        <div class="card-notes" style="margin-top:12px;">
+          <div class="notes-panel strength">
+            <h4>+ Strengths vs Spin</h4>
+            <textarea placeholder="Scoring areas, favoured shots, lines to avoid vs Spin..."></textarea>
+          </div>
+          <div class="notes-panel weakness">
+            <h4>- Weaknesses / Dismissal Patterns vs Spin</h4>
+            <textarea placeholder="Dismissal patterns, technical weaknesses, danger deliveries vs Spin..."></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+      <div class="batter-extra-stats">
+        <div class="batter-extra-section">
+          <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:12px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Dismissal Breakdown</h4>
+          <div class="dis-bars"><div class="dis-bar-row">
+          <div class="dis-bar-label">Bowled</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:42.9%;background:#00703C;"></div></div>
+          <div class="dis-bar-meta">3 <span class="dis-bar-pct">(42.9%)</span></div>
+        </div><div class="dis-bar-row">
+          <div class="dis-bar-label">Caught Behind</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:42.9%;background:#c9a227;"></div></div>
+          <div class="dis-bar-meta">3 <span class="dis-bar-pct">(42.9%)</span></div>
+        </div><div class="dis-bar-row">
+          <div class="dis-bar-label">LBW</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:14.3%;background:#c8102e;"></div></div>
+          <div class="dis-bar-meta">1 <span class="dis-bar-pct">(14.3%)</span></div>
+        </div></div>
+        </div>
+        <div class="batter-extra-section">
+          <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:12px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Shot Type Analysis</h4>
+          <div class="shot-stats-wrap">
+      <div class="shot-block">
+          <div class="shot-block-hdr">&#x1F9F9; Sweep / Scoop / Lap</div>
+          <p style="font-size:11px;color:var(--grey-mid);margin:4px 0;">None recorded</p>
+        </div>
+      <div class="shot-block">
+          <div class="shot-block-hdr">&#x1F680; Over The Top</div>
+          <p style="font-size:11px;color:var(--grey-mid);margin:4px 0;">None recorded</p>
+        </div>
+    </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="player-card" id="batsman-2">
+    <button class="delete-card-btn no-print"
+      onclick="this.closest('.player-card').remove()" title="Remove">✕</button>
+    <div class="player-card-inner">
+      <div class="card-header">
+        <div class="player-number">2</div>
+        <div class="player-info">
+          <input class="player-name-input" value="Player 2" placeholder="Batsman Name">
+          <div class="player-meta-row">
+            <select title="Batting hand"><option></option><option>Right hand bat</option><option selected>Left hand bat</option></select>
+            <input type="text" placeholder="Role e.g. Opener / Middle order"
+              style="width:220px;border:1.5px solid var(--grey-border);border-radius:5px;
+                     padding:5px 10px;font-family:'DM Sans',sans-serif;font-size:12px;">
+            <button class="threat-badge threat-UNKNOWN" onclick="cycleThreat(this)">THREAT: UNKNOWN</button>
+          </div>
+        </div>
+      </div>
+      
+    <div class="bowling-type-section">
+      <div class="bowling-type-header seam-header"><span>🔴</span> vs Seam</div>
+      <div class="bowling-type-body">
+
+        <div class="stats-overall-bar">
+          <div class="overall-chip">
+            <span class="chip-label">Runs(Balls)</span>
+            <span class="chip-val">156(186)</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Strike Rate</span>
+            <span class="chip-val">84</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Boundary %</span>
+            <span class="chip-val">8.1%</span>
+          </div>
+        </div>
+
+        <table class="breakdown-table">
+          <thead><tr><th>Type</th><th>Runs(Balls)</th><th>SR</th><th>Bdry%</th><th>Dot%</th><th>Wkts</th></tr></thead>
+          <tbody>
+          <tr>
+            <td class="breakdown-type">Right arm seam</td>
+            <td class="stat-val">156(186)</td>
+            <td class="stat-val">84</td>
+            <td class="stat-val">8.1%</td>
+            <td class="stat-val">59%</td>
+            <td class="stat-val">2</td>
+          </tr>
+          <tr>
+            <td class="breakdown-type">Left arm seam</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+          </tr></tbody>
+        </table>
+
+        <div class="images-three-col">
+          <div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Wickets</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="49.8" cy="47.3" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="65.1" cy="207.5" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Wicket</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="114.3" cy="78.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="107.4" cy="168.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="107.0" cy="233.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="109.1" cy="220.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="121.6" cy="71.9" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="65.8" cy="172.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="102.2" cy="77.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="46.4" cy="142.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="110.2" cy="47.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="83.1" cy="154.8" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="50.5" cy="77.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="83.5" cy="225.2" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="104.6" cy="37.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="104.3" cy="28.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="100.1" cy="216.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#f39c12" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Four</text><circle cx="64" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="70" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Six</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries Wagon Wheel</div><div class="image-drop-zone" id="drop-bat2-seam_ww" title="Click or drag" onclick="triggerFileInput(event,'bat2','seam_ww')"><div class="drop-icon">📷</div><div class="drop-label">Boundaries Wagon Wheel<br><span style="font-size:10px;opacity:0.6;">drag &amp; drop or click</span></div><input type="file" accept="image/*" id="file-bat2-seam_ww" onchange="handleFileInput(event,'bat2','seam_ww')"><button class="remove-img" onclick="event.stopPropagation();clearImage('bat2','seam_ww')" title="Remove">✕</button></div></div>
+        </div>
+
+        <div class="card-notes" style="margin-top:12px;">
+          <div class="notes-panel strength">
+            <h4>+ Strengths vs Seam</h4>
+            <textarea placeholder="Scoring areas, favoured shots, lines to avoid vs Seam..."></textarea>
+          </div>
+          <div class="notes-panel weakness">
+            <h4>- Weaknesses / Dismissal Patterns vs Seam</h4>
+            <textarea placeholder="Dismissal patterns, technical weaknesses, danger deliveries vs Seam..."></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+      
+    <div class="bowling-type-section">
+      <div class="bowling-type-header spin-header"><span>🟣</span> vs Spin</div>
+      <div class="bowling-type-body">
+
+        <div class="stats-overall-bar">
+          <div class="overall-chip">
+            <span class="chip-label">Runs(Balls)</span>
+            <span class="chip-val">153(146)</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Strike Rate</span>
+            <span class="chip-val">105</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Boundary %</span>
+            <span class="chip-val">10.3%</span>
+          </div>
+        </div>
+
+        <table class="breakdown-table">
+          <thead><tr><th>Type</th><th>Runs(Balls)</th><th>SR</th><th>Bdry%</th><th>Dot%</th><th>Wkts</th></tr></thead>
+          <tbody>
+          <tr>
+            <td class="breakdown-type">LOB — Left arm orthodox</td>
+            <td class="stat-val">153(146)</td>
+            <td class="stat-val">105</td>
+            <td class="stat-val">10.3%</td>
+            <td class="stat-val">48%</td>
+            <td class="stat-val">4</td>
+          </tr></tbody>
+        </table>
+
+        <div class="images-three-col">
+          <div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Wickets</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="44.6" cy="168.9" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="74.1" cy="37.7" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="105.0" cy="33.0" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="102.9" cy="163.2" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Wicket</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="81.4" cy="81.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="85.5" cy="146.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="96.3" cy="193.9" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="69.3" cy="152.2" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="55.7" cy="194.9" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="86.6" cy="178.2" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="96.3" cy="183.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="118.5" cy="189.4" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="87.3" cy="177.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="53.3" cy="71.9" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="63.4" cy="180.7" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="75.1" cy="31.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="84.9" cy="161.3" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="64.7" cy="124.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="50.2" cy="88.6" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#f39c12" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Four</text><circle cx="64" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="70" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Six</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries Wagon Wheel</div><div class="image-drop-zone" id="drop-bat2-spin_ww" title="Click or drag" onclick="triggerFileInput(event,'bat2','spin_ww')"><div class="drop-icon">📷</div><div class="drop-label">Boundaries Wagon Wheel<br><span style="font-size:10px;opacity:0.6;">drag &amp; drop or click</span></div><input type="file" accept="image/*" id="file-bat2-spin_ww" onchange="handleFileInput(event,'bat2','spin_ww')"><button class="remove-img" onclick="event.stopPropagation();clearImage('bat2','spin_ww')" title="Remove">✕</button></div></div>
+        </div>
+
+        <div class="card-notes" style="margin-top:12px;">
+          <div class="notes-panel strength">
+            <h4>+ Strengths vs Spin</h4>
+            <textarea placeholder="Scoring areas, favoured shots, lines to avoid vs Spin..."></textarea>
+          </div>
+          <div class="notes-panel weakness">
+            <h4>- Weaknesses / Dismissal Patterns vs Spin</h4>
+            <textarea placeholder="Dismissal patterns, technical weaknesses, danger deliveries vs Spin..."></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+      <div class="batter-extra-stats">
+        <div class="batter-extra-section">
+          <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:12px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Dismissal Breakdown</h4>
+          <div class="dis-bars"><div class="dis-bar-row">
+          <div class="dis-bar-label">Bowled</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:50.0%;background:#00703C;"></div></div>
+          <div class="dis-bar-meta">3 <span class="dis-bar-pct">(50.0%)</span></div>
+        </div><div class="dis-bar-row">
+          <div class="dis-bar-label">LBW</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:33.3%;background:#c9a227;"></div></div>
+          <div class="dis-bar-meta">2 <span class="dis-bar-pct">(33.3%)</span></div>
+        </div><div class="dis-bar-row">
+          <div class="dis-bar-label">Caught</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:16.7%;background:#c8102e;"></div></div>
+          <div class="dis-bar-meta">1 <span class="dis-bar-pct">(16.7%)</span></div>
+        </div></div>
+        </div>
+        <div class="batter-extra-section">
+          <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:12px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Shot Type Analysis</h4>
+          <div class="shot-stats-wrap">
+      <div class="shot-block">
+          <div class="shot-block-hdr">&#x1F9F9; Sweep / Scoop / Lap</div>
+          <p style="font-size:11px;color:var(--grey-mid);margin:4px 0;">None recorded</p>
+        </div>
+      <div class="shot-block">
+          <div class="shot-block-hdr">&#x1F680; Over The Top</div>
+          <p style="font-size:11px;color:var(--grey-mid);margin:4px 0;">None recorded</p>
+        </div>
+    </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="player-card" id="batsman-3">
+    <button class="delete-card-btn no-print"
+      onclick="this.closest('.player-card').remove()" title="Remove">✕</button>
+    <div class="player-card-inner">
+      <div class="card-header">
+        <div class="player-number">3</div>
+        <div class="player-info">
+          <input class="player-name-input" value="Player 3" placeholder="Batsman Name">
+          <div class="player-meta-row">
+            <select title="Batting hand"><option></option><option selected>Right hand bat</option><option>Left hand bat</option></select>
+            <input type="text" placeholder="Role e.g. Opener / Middle order"
+              style="width:220px;border:1.5px solid var(--grey-border);border-radius:5px;
+                     padding:5px 10px;font-family:'DM Sans',sans-serif;font-size:12px;">
+            <button class="threat-badge threat-UNKNOWN" onclick="cycleThreat(this)">THREAT: UNKNOWN</button>
+          </div>
+        </div>
+      </div>
+      
+    <div class="bowling-type-section">
+      <div class="bowling-type-header seam-header"><span>🔴</span> vs Seam</div>
+      <div class="bowling-type-body">
+
+        <div class="stats-overall-bar">
+          <div class="overall-chip">
+            <span class="chip-label">Runs(Balls)</span>
+            <span class="chip-val">164(115)</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Strike Rate</span>
+            <span class="chip-val">143</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Boundary %</span>
+            <span class="chip-val">15.7%</span>
+          </div>
+        </div>
+
+        <table class="breakdown-table">
+          <thead><tr><th>Type</th><th>Runs(Balls)</th><th>SR</th><th>Bdry%</th><th>Dot%</th><th>Wkts</th></tr></thead>
+          <tbody>
+          <tr>
+            <td class="breakdown-type">Right arm seam</td>
+            <td class="stat-val">164(115)</td>
+            <td class="stat-val">143</td>
+            <td class="stat-val">15.7%</td>
+            <td class="stat-val">34%</td>
+            <td class="stat-val">3</td>
+          </tr>
+          <tr>
+            <td class="breakdown-type">Left arm seam</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+          </tr></tbody>
+        </table>
+
+        <div class="images-three-col">
+          <div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Wickets</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="44.3" cy="154.2" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="103.6" cy="236.6" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="97.7" cy="147.3" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Wicket</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="56.4" cy="153.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="96.6" cy="78.6" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="102.2" cy="171.3" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="73.8" cy="186.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="94.2" cy="204.7" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="67.5" cy="117.4" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="111.5" cy="48.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="76.9" cy="237.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="48.8" cy="90.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="115.0" cy="204.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="95.6" cy="130.6" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="111.2" cy="44.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="116.1" cy="129.4" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="117.1" cy="47.5" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="49.8" cy="238.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="108.8" cy="173.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="86.6" cy="47.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="67.5" cy="175.6" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#f39c12" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Four</text><circle cx="64" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="70" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Six</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries Wagon Wheel</div><div class="image-drop-zone" id="drop-bat3-seam_ww" title="Click or drag" onclick="triggerFileInput(event,'bat3','seam_ww')"><div class="drop-icon">📷</div><div class="drop-label">Boundaries Wagon Wheel<br><span style="font-size:10px;opacity:0.6;">drag &amp; drop or click</span></div><input type="file" accept="image/*" id="file-bat3-seam_ww" onchange="handleFileInput(event,'bat3','seam_ww')"><button class="remove-img" onclick="event.stopPropagation();clearImage('bat3','seam_ww')" title="Remove">✕</button></div></div>
+        </div>
+
+        <div class="card-notes" style="margin-top:12px;">
+          <div class="notes-panel strength">
+            <h4>+ Strengths vs Seam</h4>
+            <textarea placeholder="Scoring areas, favoured shots, lines to avoid vs Seam..."></textarea>
+          </div>
+          <div class="notes-panel weakness">
+            <h4>- Weaknesses / Dismissal Patterns vs Seam</h4>
+            <textarea placeholder="Dismissal patterns, technical weaknesses, danger deliveries vs Seam..."></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+      
+    <div class="bowling-type-section">
+      <div class="bowling-type-header spin-header"><span>🟣</span> vs Spin</div>
+      <div class="bowling-type-body">
+
+        <div class="stats-overall-bar">
+          <div class="overall-chip">
+            <span class="chip-label">Runs(Balls)</span>
+            <span class="chip-val">147(100)</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Strike Rate</span>
+            <span class="chip-val">147</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Boundary %</span>
+            <span class="chip-val">14.0%</span>
+          </div>
+        </div>
+
+        <table class="breakdown-table">
+          <thead><tr><th>Type</th><th>Runs(Balls)</th><th>SR</th><th>Bdry%</th><th>Dot%</th><th>Wkts</th></tr></thead>
+          <tbody>
+          <tr>
+            <td class="breakdown-type">LOB — Left arm orthodox</td>
+            <td class="stat-val">147(100)</td>
+            <td class="stat-val">147</td>
+            <td class="stat-val">14.0%</td>
+            <td class="stat-val">39%</td>
+            <td class="stat-val">2</td>
+          </tr></tbody>
+        </table>
+
+        <div class="images-three-col">
+          <div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Wickets</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="105.3" cy="47.3" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="82.4" cy="34.7" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Wicket</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="69.3" cy="179.4" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="55.0" cy="175.2" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="85.2" cy="195.7" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="71.3" cy="137.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="50.9" cy="34.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="121.3" cy="169.3" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="98.4" cy="210.8" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="104.3" cy="47.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="91.1" cy="238.8" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="43.9" cy="92.6" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="64.4" cy="142.4" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="63.4" cy="50.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="111.5" cy="116.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="66.5" cy="231.7" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#f39c12" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Four</text><circle cx="64" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="70" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Six</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries Wagon Wheel</div><div class="image-drop-zone" id="drop-bat3-spin_ww" title="Click or drag" onclick="triggerFileInput(event,'bat3','spin_ww')"><div class="drop-icon">📷</div><div class="drop-label">Boundaries Wagon Wheel<br><span style="font-size:10px;opacity:0.6;">drag &amp; drop or click</span></div><input type="file" accept="image/*" id="file-bat3-spin_ww" onchange="handleFileInput(event,'bat3','spin_ww')"><button class="remove-img" onclick="event.stopPropagation();clearImage('bat3','spin_ww')" title="Remove">✕</button></div></div>
+        </div>
+
+        <div class="card-notes" style="margin-top:12px;">
+          <div class="notes-panel strength">
+            <h4>+ Strengths vs Spin</h4>
+            <textarea placeholder="Scoring areas, favoured shots, lines to avoid vs Spin..."></textarea>
+          </div>
+          <div class="notes-panel weakness">
+            <h4>- Weaknesses / Dismissal Patterns vs Spin</h4>
+            <textarea placeholder="Dismissal patterns, technical weaknesses, danger deliveries vs Spin..."></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+      <div class="batter-extra-stats">
+        <div class="batter-extra-section">
+          <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:12px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Dismissal Breakdown</h4>
+          <div class="dis-bars"><div class="dis-bar-row">
+          <div class="dis-bar-label">LBW</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:60.0%;background:#00703C;"></div></div>
+          <div class="dis-bar-meta">3 <span class="dis-bar-pct">(60.0%)</span></div>
+        </div><div class="dis-bar-row">
+          <div class="dis-bar-label">Bowled</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:20.0%;background:#c9a227;"></div></div>
+          <div class="dis-bar-meta">1 <span class="dis-bar-pct">(20.0%)</span></div>
+        </div><div class="dis-bar-row">
+          <div class="dis-bar-label">Caught Behind</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:20.0%;background:#c8102e;"></div></div>
+          <div class="dis-bar-meta">1 <span class="dis-bar-pct">(20.0%)</span></div>
+        </div></div>
+        </div>
+        <div class="batter-extra-section">
+          <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:12px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Shot Type Analysis</h4>
+          <div class="shot-stats-wrap">
+      <div class="shot-block">
+          <div class="shot-block-hdr">&#x1F9F9; Sweep / Scoop / Lap</div>
+          <p style="font-size:11px;color:var(--grey-mid);margin:4px 0;">None recorded</p>
+        </div>
+      <div class="shot-block">
+          <div class="shot-block-hdr">&#x1F680; Over The Top</div>
+          <p style="font-size:11px;color:var(--grey-mid);margin:4px 0;">None recorded</p>
+        </div>
+    </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="player-card" id="batsman-4">
+    <button class="delete-card-btn no-print"
+      onclick="this.closest('.player-card').remove()" title="Remove">✕</button>
+    <div class="player-card-inner">
+      <div class="card-header">
+        <div class="player-number">4</div>
+        <div class="player-info">
+          <input class="player-name-input" value="Player 4" placeholder="Batsman Name">
+          <div class="player-meta-row">
+            <select title="Batting hand"><option></option><option selected>Right hand bat</option><option>Left hand bat</option></select>
+            <input type="text" placeholder="Role e.g. Opener / Middle order"
+              style="width:220px;border:1.5px solid var(--grey-border);border-radius:5px;
+                     padding:5px 10px;font-family:'DM Sans',sans-serif;font-size:12px;">
+            <button class="threat-badge threat-UNKNOWN" onclick="cycleThreat(this)">THREAT: UNKNOWN</button>
+          </div>
+        </div>
+      </div>
+      
+    <div class="bowling-type-section">
+      <div class="bowling-type-header seam-header"><span>🔴</span> vs Seam</div>
+      <div class="bowling-type-body">
+
+        <div class="stats-overall-bar">
+          <div class="overall-chip">
+            <span class="chip-label">Runs(Balls)</span>
+            <span class="chip-val">169(88)</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Strike Rate</span>
+            <span class="chip-val">192</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Boundary %</span>
+            <span class="chip-val">29.5%</span>
+          </div>
+        </div>
+
+        <table class="breakdown-table">
+          <thead><tr><th>Type</th><th>Runs(Balls)</th><th>SR</th><th>Bdry%</th><th>Dot%</th><th>Wkts</th></tr></thead>
+          <tbody>
+          <tr>
+            <td class="breakdown-type">Right arm seam</td>
+            <td class="stat-val">169(88)</td>
+            <td class="stat-val">192</td>
+            <td class="stat-val">29.5%</td>
+            <td class="stat-val">42%</td>
+            <td class="stat-val">4</td>
+          </tr>
+          <tr>
+            <td class="breakdown-type">Left arm seam</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+          </tr></tbody>
+        </table>
+
+        <div class="images-three-col">
+          <div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Wickets</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="93.2" cy="206.3" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="97.0" cy="236.4" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="45.3" cy="230.3" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="71.7" cy="172.9" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Wicket</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="72.0" cy="142.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="62.7" cy="45.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="53.0" cy="174.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="115.0" cy="45.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="66.1" cy="38.3" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="79.3" cy="166.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="44.6" cy="114.4" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="47.4" cy="120.3" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="119.5" cy="86.9" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="45.7" cy="235.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="98.0" cy="128.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="87.3" cy="165.4" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="110.9" cy="83.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="98.4" cy="46.7" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="91.1" cy="73.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="48.8" cy="54.4" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="92.1" cy="46.7" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="46.0" cy="31.2" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="59.5" cy="95.9" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="102.9" cy="45.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="40.8" cy="112.5" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="62.0" cy="165.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="116.1" cy="96.7" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="66.5" cy="42.6" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="49.1" cy="232.3" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="90.1" cy="53.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#f39c12" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Four</text><circle cx="64" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="70" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Six</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries Wagon Wheel</div><div class="image-drop-zone" id="drop-bat4-seam_ww" title="Click or drag" onclick="triggerFileInput(event,'bat4','seam_ww')"><div class="drop-icon">📷</div><div class="drop-label">Boundaries Wagon Wheel<br><span style="font-size:10px;opacity:0.6;">drag &amp; drop or click</span></div><input type="file" accept="image/*" id="file-bat4-seam_ww" onchange="handleFileInput(event,'bat4','seam_ww')"><button class="remove-img" onclick="event.stopPropagation();clearImage('bat4','seam_ww')" title="Remove">✕</button></div></div>
+        </div>
+
+        <div class="card-notes" style="margin-top:12px;">
+          <div class="notes-panel strength">
+            <h4>+ Strengths vs Seam</h4>
+            <textarea placeholder="Scoring areas, favoured shots, lines to avoid vs Seam..."></textarea>
+          </div>
+          <div class="notes-panel weakness">
+            <h4>- Weaknesses / Dismissal Patterns vs Seam</h4>
+            <textarea placeholder="Dismissal patterns, technical weaknesses, danger deliveries vs Seam..."></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+      
+    <div class="bowling-type-section">
+      <div class="bowling-type-header spin-header"><span>🟣</span> vs Spin</div>
+      <div class="bowling-type-body">
+
+        <div class="stats-overall-bar">
+          <div class="overall-chip">
+            <span class="chip-label">Runs(Balls)</span>
+            <span class="chip-val">156(90)</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Strike Rate</span>
+            <span class="chip-val">173</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Boundary %</span>
+            <span class="chip-val">21.1%</span>
+          </div>
+        </div>
+
+        <table class="breakdown-table">
+          <thead><tr><th>Type</th><th>Runs(Balls)</th><th>SR</th><th>Bdry%</th><th>Dot%</th><th>Wkts</th></tr></thead>
+          <tbody>
+          <tr>
+            <td class="breakdown-type">LOB — Left arm orthodox</td>
+            <td class="stat-val">156(90)</td>
+            <td class="stat-val">173</td>
+            <td class="stat-val">21.1%</td>
+            <td class="stat-val">31%</td>
+            <td class="stat-val">3</td>
+          </tr></tbody>
+        </table>
+
+        <div class="images-three-col">
+          <div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Wickets</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="75.1" cy="214.6" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="82.8" cy="152.0" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="45.0" cy="39.4" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Wicket</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="49.8" cy="195.9" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="73.8" cy="79.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="58.2" cy="191.2" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="78.6" cy="114.8" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="54.3" cy="65.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="38.7" cy="125.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="42.2" cy="39.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="110.9" cy="167.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="114.0" cy="41.8" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="62.0" cy="90.6" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="69.3" cy="78.4" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="47.8" cy="172.7" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="110.5" cy="181.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="109.5" cy="126.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="102.2" cy="43.6" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="67.5" cy="173.6" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="77.6" cy="225.6" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="90.4" cy="114.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="39.4" cy="133.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#f39c12" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Four</text><circle cx="64" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="70" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Six</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries Wagon Wheel</div><div class="image-drop-zone" id="drop-bat4-spin_ww" title="Click or drag" onclick="triggerFileInput(event,'bat4','spin_ww')"><div class="drop-icon">📷</div><div class="drop-label">Boundaries Wagon Wheel<br><span style="font-size:10px;opacity:0.6;">drag &amp; drop or click</span></div><input type="file" accept="image/*" id="file-bat4-spin_ww" onchange="handleFileInput(event,'bat4','spin_ww')"><button class="remove-img" onclick="event.stopPropagation();clearImage('bat4','spin_ww')" title="Remove">✕</button></div></div>
+        </div>
+
+        <div class="card-notes" style="margin-top:12px;">
+          <div class="notes-panel strength">
+            <h4>+ Strengths vs Spin</h4>
+            <textarea placeholder="Scoring areas, favoured shots, lines to avoid vs Spin..."></textarea>
+          </div>
+          <div class="notes-panel weakness">
+            <h4>- Weaknesses / Dismissal Patterns vs Spin</h4>
+            <textarea placeholder="Dismissal patterns, technical weaknesses, danger deliveries vs Spin..."></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+      <div class="batter-extra-stats">
+        <div class="batter-extra-section">
+          <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:12px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Dismissal Breakdown</h4>
+          <div class="dis-bars"><div class="dis-bar-row">
+          <div class="dis-bar-label">Caught Behind</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:42.9%;background:#00703C;"></div></div>
+          <div class="dis-bar-meta">3 <span class="dis-bar-pct">(42.9%)</span></div>
+        </div><div class="dis-bar-row">
+          <div class="dis-bar-label">Bowled</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:28.6%;background:#c9a227;"></div></div>
+          <div class="dis-bar-meta">2 <span class="dis-bar-pct">(28.6%)</span></div>
+        </div><div class="dis-bar-row">
+          <div class="dis-bar-label">Caught</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:28.6%;background:#c8102e;"></div></div>
+          <div class="dis-bar-meta">2 <span class="dis-bar-pct">(28.6%)</span></div>
+        </div></div>
+        </div>
+        <div class="batter-extra-section">
+          <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:12px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Shot Type Analysis</h4>
+          <div class="shot-stats-wrap">
+      <div class="shot-block">
+          <div class="shot-block-hdr">&#x1F9F9; Sweep / Scoop / Lap</div>
+          <p style="font-size:11px;color:var(--grey-mid);margin:4px 0;">None recorded</p>
+        </div>
+      <div class="shot-block">
+          <div class="shot-block-hdr">&#x1F680; Over The Top</div>
+          <p style="font-size:11px;color:var(--grey-mid);margin:4px 0;">None recorded</p>
+        </div>
+    </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="player-card" id="batsman-5">
+    <button class="delete-card-btn no-print"
+      onclick="this.closest('.player-card').remove()" title="Remove">✕</button>
+    <div class="player-card-inner">
+      <div class="card-header">
+        <div class="player-number">5</div>
+        <div class="player-info">
+          <input class="player-name-input" value="Player 5" placeholder="Batsman Name">
+          <div class="player-meta-row">
+            <select title="Batting hand"><option></option><option>Right hand bat</option><option selected>Left hand bat</option></select>
+            <input type="text" placeholder="Role e.g. Opener / Middle order"
+              style="width:220px;border:1.5px solid var(--grey-border);border-radius:5px;
+                     padding:5px 10px;font-family:'DM Sans',sans-serif;font-size:12px;">
+            <button class="threat-badge threat-UNKNOWN" onclick="cycleThreat(this)">THREAT: UNKNOWN</button>
+          </div>
+        </div>
+      </div>
+      
+    <div class="bowling-type-section">
+      <div class="bowling-type-header seam-header"><span>🔴</span> vs Seam</div>
+      <div class="bowling-type-body">
+
+        <div class="stats-overall-bar">
+          <div class="overall-chip">
+            <span class="chip-label">Runs(Balls)</span>
+            <span class="chip-val">152(107)</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Strike Rate</span>
+            <span class="chip-val">142</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Boundary %</span>
+            <span class="chip-val">20.6%</span>
+          </div>
+        </div>
+
+        <table class="breakdown-table">
+          <thead><tr><th>Type</th><th>Runs(Balls)</th><th>SR</th><th>Bdry%</th><th>Dot%</th><th>Wkts</th></tr></thead>
+          <tbody>
+          <tr>
+            <td class="breakdown-type">Right arm seam</td>
+            <td class="stat-val">152(107)</td>
+            <td class="stat-val">142</td>
+            <td class="stat-val">20.6%</td>
+            <td class="stat-val">45%</td>
+            <td class="stat-val">2</td>
+          </tr>
+          <tr>
+            <td class="breakdown-type">Left arm seam</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+            <td class="stat-val">—</td>
+          </tr></tbody>
+        </table>
+
+        <div class="images-three-col">
+          <div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Wickets</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="70.3" cy="231.5" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="96.3" cy="85.5" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Wicket</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="71.3" cy="184.9" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="119.5" cy="61.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="47.8" cy="51.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="108.4" cy="38.7" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="81.0" cy="50.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="89.4" cy="190.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="97.7" cy="87.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="45.3" cy="239.4" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="43.3" cy="99.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="39.1" cy="152.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="50.5" cy="190.4" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="41.2" cy="79.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="111.5" cy="241.7" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="38.4" cy="237.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="109.5" cy="224.8" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="86.6" cy="177.6" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="46.7" cy="212.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="59.9" cy="182.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="111.5" cy="229.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="57.1" cy="205.9" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="55.7" cy="103.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="99.4" cy="30.4" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#f39c12" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Four</text><circle cx="64" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="70" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Six</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries Wagon Wheel</div><div class="image-drop-zone" id="drop-bat5-seam_ww" title="Click or drag" onclick="triggerFileInput(event,'bat5','seam_ww')"><div class="drop-icon">📷</div><div class="drop-label">Boundaries Wagon Wheel<br><span style="font-size:10px;opacity:0.6;">drag &amp; drop or click</span></div><input type="file" accept="image/*" id="file-bat5-seam_ww" onchange="handleFileInput(event,'bat5','seam_ww')"><button class="remove-img" onclick="event.stopPropagation();clearImage('bat5','seam_ww')" title="Remove">✕</button></div></div>
+        </div>
+
+        <div class="card-notes" style="margin-top:12px;">
+          <div class="notes-panel strength">
+            <h4>+ Strengths vs Seam</h4>
+            <textarea placeholder="Scoring areas, favoured shots, lines to avoid vs Seam..."></textarea>
+          </div>
+          <div class="notes-panel weakness">
+            <h4>- Weaknesses / Dismissal Patterns vs Seam</h4>
+            <textarea placeholder="Dismissal patterns, technical weaknesses, danger deliveries vs Seam..."></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+      
+    <div class="bowling-type-section">
+      <div class="bowling-type-header spin-header"><span>🟣</span> vs Spin</div>
+      <div class="bowling-type-body">
+
+        <div class="stats-overall-bar">
+          <div class="overall-chip">
+            <span class="chip-label">Runs(Balls)</span>
+            <span class="chip-val">147(93)</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Strike Rate</span>
+            <span class="chip-val">158</span>
+          </div>
+          <div class="overall-chip">
+            <span class="chip-label">Boundary %</span>
+            <span class="chip-val">18.3%</span>
+          </div>
+        </div>
+
+        <table class="breakdown-table">
+          <thead><tr><th>Type</th><th>Runs(Balls)</th><th>SR</th><th>Bdry%</th><th>Dot%</th><th>Wkts</th></tr></thead>
+          <tbody>
+          <tr>
+            <td class="breakdown-type">LOB — Left arm orthodox</td>
+            <td class="stat-val">147(93)</td>
+            <td class="stat-val">158</td>
+            <td class="stat-val">18.3%</td>
+            <td class="stat-val">38%</td>
+            <td class="stat-val">3</td>
+          </tr></tbody>
+        </table>
+
+        <div class="images-three-col">
+          <div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Wickets</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="117.8" cy="139.8" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="59.2" cy="89.0" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="48.8" cy="30.2" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Wicket</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="49.5" cy="80.6" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="70.3" cy="70.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="72.7" cy="177.6" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="67.5" cy="133.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="46.4" cy="211.4" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="60.6" cy="183.1" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="39.8" cy="39.6" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="63.7" cy="230.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="58.9" cy="179.4" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="110.5" cy="139.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="93.5" cy="170.3" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="103.9" cy="180.1" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="106.0" cy="37.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="53.7" cy="167.9" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="86.6" cy="216.9" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="86.9" cy="75.5" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="86.2" cy="221.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#f39c12" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Four</text><circle cx="64" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="70" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Six</text></svg></div><div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries Wagon Wheel</div><div class="image-drop-zone" id="drop-bat5-spin_ww" title="Click or drag" onclick="triggerFileInput(event,'bat5','spin_ww')"><div class="drop-icon">📷</div><div class="drop-label">Boundaries Wagon Wheel<br><span style="font-size:10px;opacity:0.6;">drag &amp; drop or click</span></div><input type="file" accept="image/*" id="file-bat5-spin_ww" onchange="handleFileInput(event,'bat5','spin_ww')"><button class="remove-img" onclick="event.stopPropagation();clearImage('bat5','spin_ww')" title="Remove">✕</button></div></div>
+        </div>
+
+        <div class="card-notes" style="margin-top:12px;">
+          <div class="notes-panel strength">
+            <h4>+ Strengths vs Spin</h4>
+            <textarea placeholder="Scoring areas, favoured shots, lines to avoid vs Spin..."></textarea>
+          </div>
+          <div class="notes-panel weakness">
+            <h4>- Weaknesses / Dismissal Patterns vs Spin</h4>
+            <textarea placeholder="Dismissal patterns, technical weaknesses, danger deliveries vs Spin..."></textarea>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+      <div class="batter-extra-stats">
+        <div class="batter-extra-section">
+          <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:12px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Dismissal Breakdown</h4>
+          <div class="dis-bars"><div class="dis-bar-row">
+          <div class="dis-bar-label">Caught Behind</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:40.0%;background:#00703C;"></div></div>
+          <div class="dis-bar-meta">2 <span class="dis-bar-pct">(40.0%)</span></div>
+        </div><div class="dis-bar-row">
+          <div class="dis-bar-label">Caught</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:40.0%;background:#c9a227;"></div></div>
+          <div class="dis-bar-meta">2 <span class="dis-bar-pct">(40.0%)</span></div>
+        </div><div class="dis-bar-row">
+          <div class="dis-bar-label">Bowled</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:20.0%;background:#c8102e;"></div></div>
+          <div class="dis-bar-meta">1 <span class="dis-bar-pct">(20.0%)</span></div>
+        </div></div>
+        </div>
+        <div class="batter-extra-section">
+          <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:12px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Shot Type Analysis</h4>
+          <div class="shot-stats-wrap">
+      <div class="shot-block">
+          <div class="shot-block-hdr">&#x1F9F9; Sweep / Scoop / Lap</div>
+          <p style="font-size:11px;color:var(--grey-mid);margin:4px 0;">None recorded</p>
+        </div>
+      <div class="shot-block">
+          <div class="shot-block-hdr">&#x1F680; Over The Top</div>
+          <p style="font-size:11px;color:var(--grey-mid);margin:4px 0;">None recorded</p>
+        </div>
+    </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  <div class="add-player-row no-print">
+    <button class="btn btn-bat" onclick="addBlankBatsman()">+ Add Batsman Card</button>
+  </div>
+
+  <div class="section-header bowling-threats"><span class="section-icon">🎳</span> Player Profiles — Bowling Threats</div>
+  <div class="bowlers-container" id="bowlersContainer">
+    
+  <div class="bowler-card" id="bowler-1">
+    <button class="delete-card-btn no-print"
+      onclick="this.closest('.bowler-card').remove()" title="Remove">✕</button>
+    <div class="bowler-card-inner-wrap">
+      <div class="card-header">
+        <div class="bowler-number">1</div>
+        <div class="bowler-info">
+          <input class="bowler-name-input" value="Player 6" placeholder="Bowler Name">
+          <div class="bowler-meta-row">
+            <select title="Bowling type"><option></option><option>Right arm fast</option><option selected>Right arm fast-medium</option><option>Right arm medium</option><option>Left arm fast</option><option>Left arm fast-medium</option><option>Left arm medium</option><option>Right arm off-break</option><option>Right arm leg-break</option><option>Left arm orthodox</option><option>Left arm wrist spin</option></select>
+            <input type="text" placeholder="Role e.g. Opening bowler / 1st change"
+              style="width:230px;border:1.5px solid var(--grey-border);border-radius:5px;
+                     padding:5px 10px;font-family:'DM Sans',sans-serif;font-size:12px;">
+            <button class="threat-badge threat-UNKNOWN" onclick="cycleThreat(this)">THREAT: UNKNOWN</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bowler-overall-stats" style="margin-bottom:20px;">
+        <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:10px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Overall Bowling Stats</h4>
+        <div class="mini-stats cols-5">
+          <div class="mini-stat"><label>Overs</label>
+            <input value="29.0" placeholder="e.g. 24.3"></div>
+          <div class="mini-stat"><label>Wickets</label>
+            <input value="8" placeholder="e.g. 8"></div>
+          <div class="mini-stat"><label>Average</label>
+            <input value="35.5" placeholder="e.g. 22.4"></div>
+          <div class="mini-stat"><label>Economy</label>
+            <input value="9.79" placeholder="e.g. 7.2"></div>
+          <div class="mini-stat"><label>Strike Rate</label>
+            <input value="21.8" placeholder="e.g. 18.6"></div>
+        </div>
+        <div class="mini-stats cols-4" style="margin-top:8px;">
+          <div class="mini-stat"><label>Dot %</label>
+            <input value="38.5%" placeholder="e.g. 42%"></div>
+          <div class="mini-stat"><label>Boundary %</label>
+            <input value="23.6%" placeholder="e.g. 14%"></div>
+          <div class="mini-stat"><label>Best Figures</label>
+            <input value="8/284" placeholder="e.g. 3/28"></div>
+          <div class="mini-stat"><label>Matches</label>
+            <input value="1" placeholder="e.g. 8"></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:10px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Pitch Maps &amp; Wagon Wheel</h4>
+        <div class="images-three-col">
+          <div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Wickets</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="71.7" cy="172.9" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="103.6" cy="236.6" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="87.6" cy="228.0" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="96.3" cy="85.5" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="49.8" cy="47.3" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="97.7" cy="147.3" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="50.2" cy="32.0" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="65.1" cy="207.5" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Wicket</text></svg></div>
+          <div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries Conceded (Pitch)</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="98.4" cy="46.7" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="102.2" cy="77.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="91.1" cy="73.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="48.8" cy="54.4" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="92.1" cy="46.7" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="46.0" cy="31.2" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="59.5" cy="95.9" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="102.9" cy="45.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="40.8" cy="112.5" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="95.6" cy="130.6" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="111.2" cy="44.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="116.1" cy="129.4" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="115.0" cy="45.9" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="98.0" cy="127.2" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="45.7" cy="113.6" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="62.0" cy="165.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="116.1" cy="96.7" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="66.5" cy="42.6" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="46.4" cy="142.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="110.2" cy="47.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="46.7" cy="212.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="59.9" cy="182.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="117.1" cy="47.5" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="49.8" cy="238.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="49.1" cy="232.3" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="90.1" cy="53.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="111.5" cy="229.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="57.1" cy="205.9" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="55.7" cy="103.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="83.1" cy="154.8" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="50.5" cy="77.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="40.5" cy="75.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="119.5" cy="95.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="108.8" cy="173.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="99.4" cy="30.4" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="86.6" cy="47.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="67.5" cy="175.6" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="83.5" cy="225.2" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="104.6" cy="37.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="104.3" cy="28.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="100.1" cy="216.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#f39c12" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Four</text><circle cx="64" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="70" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Six</text></svg></div>
+          <div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries Conceded (Wagon Wheel)</div><div class="image-drop-zone" id="drop-bowl1-bd_wagon" title="Click or drag" onclick="triggerFileInput(event,'bowl1','bd_wagon')"><div class="drop-icon">📷</div><div class="drop-label">Boundaries Wagon Wheel<br><span style="font-size:10px;opacity:0.6;">drag &amp; drop or click</span></div><input type="file" accept="image/*" id="file-bowl1-bd_wagon" onchange="handleFileInput(event,'bowl1','bd_wagon')"><button class="remove-img" onclick="event.stopPropagation();clearImage('bowl1','bd_wagon')" title="Remove">✕</button></div></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:10px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Dismissal Breakdown</h4>
+        <div class="dis-bars"><div class="dis-bar-row">
+          <div class="dis-bar-label">Caught Behind</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:37.5%;background:#00703C;"></div></div>
+          <div class="dis-bar-meta">3 <span class="dis-bar-pct">(37.5%)</span></div>
+        </div><div class="dis-bar-row">
+          <div class="dis-bar-label">Bowled</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:37.5%;background:#c9a227;"></div></div>
+          <div class="dis-bar-meta">3 <span class="dis-bar-pct">(37.5%)</span></div>
+        </div><div class="dis-bar-row">
+          <div class="dis-bar-label">Caught</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:12.5%;background:#c8102e;"></div></div>
+          <div class="dis-bar-meta">1 <span class="dis-bar-pct">(12.5%)</span></div>
+        </div><div class="dis-bar-row">
+          <div class="dis-bar-label">LBW</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:12.5%;background:#3498db;"></div></div>
+          <div class="dis-bar-meta">1 <span class="dis-bar-pct">(12.5%)</span></div>
+        </div></div>
+      </div>
+
+      <div class="card-notes" style="margin-bottom:16px;">
+        <div class="notes-panel strength">
+          <h4>+ Strengths</h4>
+          <textarea placeholder="What makes this bowler dangerous? Best deliveries, best conditions..."></textarea>
+        </div>
+        <div class="notes-panel weakness">
+          <h4>- Weaknesses</h4>
+          <textarea placeholder="When does this bowler struggle? Lengths and lines to target..."></textarea>
+        </div>
+      </div>
+
+      <div class="bowling-plan-area">
+        <h4>Batting Plan Against This Bowler</h4>
+        <textarea placeholder="How should we approach this bowler? Target overs, matchups, scoring areas, when to attack vs defend..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="bowler-card" id="bowler-2">
+    <button class="delete-card-btn no-print"
+      onclick="this.closest('.bowler-card').remove()" title="Remove">✕</button>
+    <div class="bowler-card-inner-wrap">
+      <div class="card-header">
+        <div class="bowler-number">2</div>
+        <div class="bowler-info">
+          <input class="bowler-name-input" value="Player 7" placeholder="Bowler Name">
+          <div class="bowler-meta-row">
+            <select title="Bowling type"><option></option><option>Right arm fast</option><option>Right arm fast-medium</option><option>Right arm medium</option><option>Left arm fast</option><option>Left arm fast-medium</option><option>Left arm medium</option><option>Right arm off-break</option><option>Right arm leg-break</option><option selected>Left arm orthodox</option><option>Left arm wrist spin</option></select>
+            <input type="text" placeholder="Role e.g. Opening bowler / 1st change"
+              style="width:230px;border:1.5px solid var(--grey-border);border-radius:5px;
+                     padding:5px 10px;font-family:'DM Sans',sans-serif;font-size:12px;">
+            <button class="threat-badge threat-UNKNOWN" onclick="cycleThreat(this)">THREAT: UNKNOWN</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="bowler-overall-stats" style="margin-bottom:20px;">
+        <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:10px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Overall Bowling Stats</h4>
+        <div class="mini-stats cols-5">
+          <div class="mini-stat"><label>Overs</label>
+            <input value="25.0" placeholder="e.g. 24.3"></div>
+          <div class="mini-stat"><label>Wickets</label>
+            <input value="7" placeholder="e.g. 8"></div>
+          <div class="mini-stat"><label>Average</label>
+            <input value="29.4" placeholder="e.g. 22.4"></div>
+          <div class="mini-stat"><label>Economy</label>
+            <input value="8.24" placeholder="e.g. 7.2"></div>
+          <div class="mini-stat"><label>Strike Rate</label>
+            <input value="21.4" placeholder="e.g. 18.6"></div>
+        </div>
+        <div class="mini-stats cols-4" style="margin-top:8px;">
+          <div class="mini-stat"><label>Dot %</label>
+            <input value="38.7%" placeholder="e.g. 42%"></div>
+          <div class="mini-stat"><label>Boundary %</label>
+            <input value="12.7%" placeholder="e.g. 14%"></div>
+          <div class="mini-stat"><label>Best Figures</label>
+            <input value="7/206" placeholder="e.g. 3/28"></div>
+          <div class="mini-stat"><label>Matches</label>
+            <input value="1" placeholder="e.g. 8"></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:10px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Pitch Maps &amp; Wagon Wheel</h4>
+        <div class="images-three-col">
+          <div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Wickets</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="102.9" cy="163.2" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="75.1" cy="214.6" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="43.6" cy="194.1" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="48.8" cy="30.2" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="84.5" cy="128.8" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="82.8" cy="152.0" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="45.0" cy="39.4" r="3.5" fill="#e74c3c" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Wicket</text></svg></div>
+          <div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries Conceded (Pitch)</div><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 280" style="width:100%;display:block;border-radius:6px;border:1px solid #dde3ed;background:#f0f4f0;"><rect x="28" y="18" width="104" height="244" fill="#d4c884" rx="2"/><rect x="54.0" y="18" width="52.0" height="244" fill="#cfc07a" rx="1"/><rect x="28" y="18.0" width="104" height="40.7" fill="rgba(50,120,210,0.20)"/><text x="129.0" y="40.8" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Yorker</text><rect x="28" y="58.7" width="104" height="50.8" fill="rgba(60,170,60,0.17)"/><text x="129.0" y="86.6" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Full</text><rect x="28" y="109.5" width="104" height="50.8" fill="rgba(210,195,0,0.17)"/><text x="129.0" y="137.4" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Length</text><rect x="28" y="160.3" width="104" height="40.7" fill="rgba(225,140,30,0.17)"/><text x="129.0" y="183.2" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Back of Len</text><rect x="28" y="201.0" width="104" height="61.0" fill="rgba(210,70,70,0.17)"/><text x="129.0" y="234.0" font-family="sans-serif" font-size="5.8" fill="rgba(0,0,0,0.38)" text-anchor="end">Short</text><line x1="28" y1="18.0" x2="132" y2="18.0" stroke="white" stroke-width="1.5"/><line x1="28" y1="221.3" x2="132" y2="221.3" stroke="white" stroke-width="1.5"/><line x1="80.0" y1="18" x2="80.0" y2="262" stroke="white" stroke-width="0.5" stroke-dasharray="4,3" opacity="0.5"/><rect x="75.0" y="18.0" width="10" height="4" fill="#c9a227" rx="1"/><rect x="75.0" y="221.3" width="10" height="4" fill="#c9a227" rx="1"/><circle cx="102.2" cy="43.6" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="63.4" cy="50.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="111.5" cy="116.0" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="63.4" cy="180.7" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="75.1" cy="31.8" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="84.9" cy="161.3" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="108.4" cy="95.3" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="86.6" cy="216.9" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="94.9" cy="41.4" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="66.5" cy="231.7" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="86.9" cy="75.5" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="86.2" cy="221.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="67.5" cy="173.6" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="64.7" cy="124.5" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="50.2" cy="88.6" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="111.2" cy="67.6" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="77.6" cy="225.6" r="4" fill="#e74c3c" fill-opacity="0.85"/><circle cx="90.4" cy="114.0" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="39.4" cy="133.1" r="3.5" fill="#f39c12" fill-opacity="0.85"/><circle cx="33" cy="272" r="3" fill="#f39c12" fill-opacity="0.9"/><text x="39" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Four</text><circle cx="64" cy="272" r="3" fill="#e74c3c" fill-opacity="0.9"/><text x="70" y="276" font-family="sans-serif" font-size="7.5" fill="#555">Six</text></svg></div>
+          <div style="display:flex;flex-direction:column;gap:6px;"><div class="pitch-map-title">Boundaries Conceded (Wagon Wheel)</div><div class="image-drop-zone" id="drop-bowl2-bd_wagon" title="Click or drag" onclick="triggerFileInput(event,'bowl2','bd_wagon')"><div class="drop-icon">📷</div><div class="drop-label">Boundaries Wagon Wheel<br><span style="font-size:10px;opacity:0.6;">drag &amp; drop or click</span></div><input type="file" accept="image/*" id="file-bowl2-bd_wagon" onchange="handleFileInput(event,'bowl2','bd_wagon')"><button class="remove-img" onclick="event.stopPropagation();clearImage('bowl2','bd_wagon')" title="Remove">✕</button></div></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <h4 style="font-size:11px;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);font-weight:700;margin-bottom:10px;padding:5px 8px 5px 10px;background:rgba(0,112,60,0.07);border-radius:4px;border-left:3px solid var(--navy);">Dismissal Breakdown</h4>
+        <div class="dis-bars"><div class="dis-bar-row">
+          <div class="dis-bar-label">Bowled</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:42.9%;background:#00703C;"></div></div>
+          <div class="dis-bar-meta">3 <span class="dis-bar-pct">(42.9%)</span></div>
+        </div><div class="dis-bar-row">
+          <div class="dis-bar-label">Caught</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:28.6%;background:#c9a227;"></div></div>
+          <div class="dis-bar-meta">2 <span class="dis-bar-pct">(28.6%)</span></div>
+        </div><div class="dis-bar-row">
+          <div class="dis-bar-label">Caught Behind</div>
+          <div class="dis-bar-track"><div class="dis-bar-fill" style="width:28.6%;background:#c8102e;"></div></div>
+          <div class="dis-bar-meta">2 <span class="dis-bar-pct">(28.6%)</span></div>
+        </div></div>
+      </div>
+
+      <div class="card-notes" style="margin-bottom:16px;">
+        <div class="notes-panel strength">
+          <h4>+ Strengths</h4>
+          <textarea placeholder="What makes this bowler dangerous? Best deliveries, best conditions..."></textarea>
+        </div>
+        <div class="notes-panel weakness">
+          <h4>- Weaknesses</h4>
+          <textarea placeholder="When does this bowler struggle? Lengths and lines to target..."></textarea>
+        </div>
+      </div>
+
+      <div class="bowling-plan-area">
+        <h4>Batting Plan Against This Bowler</h4>
+        <textarea placeholder="How should we approach this bowler? Target overs, matchups, scoring areas, when to attack vs defend..."></textarea>
+      </div>
+    </div>
+  </div>
+  </div>
+  <div class="add-bowler-row no-print">
+    <button class="btn btn-bowl" onclick="addBlankBowler()">+ Add Bowler Card</button>
+  </div>
+
+  <div class="doc-footer">
+    <span>Prepared by: Aadam Hassan</span>
+    <span>Pre-Game Analysis Pack — <input type="text" placeholder="Season / Competition" style="width:180px;"></span>
+    <span>CONFIDENTIAL</span>
+  </div>
+
+</div>
+
+
+<script>
+function autoResize(el){el.style.height='auto';el.style.height=el.scrollHeight+'px';}
+document.addEventListener('input',e=>{if(e.target.tagName==='TEXTAREA')autoResize(e.target);});
+document.addEventListener('DOMContentLoaded',()=>document.querySelectorAll('textarea').forEach(autoResize));
+
+const threatCycle=['UNKNOWN','HIGH','MEDIUM','LOW'];
+function cycleThreat(btn){
+  const cur=btn.textContent.replace('THREAT: ','').trim();
+  const next=threatCycle[(threatCycle.indexOf(cur)+1)%threatCycle.length];
+  btn.textContent=`THREAT: ${next}`;
+  btn.className=`threat-badge threat-${next}`;
+}
+
+function triggerFileInput(event,id,type){
+  if(event.target.classList.contains('remove-img'))return;
+  const fi=document.getElementById(`file-${id}-${type}`);
+  if(fi)fi.click();
+}
+function setupDropZone(id,type){
+  const zone=document.getElementById(`drop-${id}-${type}`);
+  if(!zone)return;
+  zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('dragover');});
+  zone.addEventListener('dragleave',()=>zone.classList.remove('dragover'));
+  zone.addEventListener('drop',e=>{
+    e.preventDefault();zone.classList.remove('dragover');
+    const file=e.dataTransfer.files[0];
+    if(file&&file.type.startsWith('image/'))loadImg(id,type,file);
+  });
+}
+function handleFileInput(event,id,type){const f=event.target.files[0];if(f)loadImg(id,type,f);}
+function loadImg(id,type,file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const zone=document.getElementById(`drop-${id}-${type}`);
+    const old=zone.querySelector('img');if(old)old.remove();
+    const img=document.createElement('img');img.src=e.target.result;zone.appendChild(img);
+    zone.querySelector('.drop-label').style.display='none';
+    zone.querySelector('.drop-icon').style.display='none';
+  };
+  reader.readAsDataURL(file);
+}
+function clearImage(id,type){
+  const zone=document.getElementById(`drop-${id}-${type}`);
+  const img=zone.querySelector('img');if(img)img.remove();
+  zone.querySelector('.drop-label').style.display='';
+  zone.querySelector('.drop-icon').style.display='';
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.querySelectorAll('.image-drop-zone').forEach(zone=>{
+    const m=zone.id.match(/^drop-(.+?)-(.+)$/);
+    if(m)setupDropZone(m[1],m[2]);
+  });
+});
+
+// Blank card adders
+let xb=2000,xw=2000;
+function addBlankBatsman(){
+  xb++;
+  const card=document.createElement('div');
+  card.className='player-card';card.id=`batsman-${xb}`;
+  card.innerHTML=`
+    <button class="delete-card-btn no-print" onclick="this.closest('.player-card').remove()">✕</button>
+    <div class="player-card-inner">
+      <div class="card-header">
+        <div class="player-number">${xb}</div>
+        <div class="player-info">
+          <input class="player-name-input" placeholder="Batsman Name">
+          <div class="player-meta-row">
+            <select><option>Right hand bat</option><option>Left hand bat</option></select>
+            <input type="text" placeholder="Role e.g. Opener" style="width:220px;border:1.5px solid var(--grey-border);border-radius:5px;padding:5px 10px;font-family:'DM Sans',sans-serif;font-size:12px;">
+            <button class="threat-badge threat-UNKNOWN" onclick="cycleThreat(this)">THREAT: UNKNOWN</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('playersContainer').appendChild(card);
+}
+function addBlankBowler(){
+  xw++;
+  const card=document.createElement('div');
+  card.className='bowler-card';card.id=`bowler-${xw}`;
+  card.innerHTML=`
+    <button class="delete-card-btn no-print" onclick="this.closest('.bowler-card').remove()">✕</button>
+    <div class="bowler-card-inner-wrap">
+      <div class="card-header">
+        <div class="bowler-number">${xw}</div>
+        <div class="bowler-info">
+          <input class="bowler-name-input" placeholder="Bowler Name">
+          <div class="bowler-meta-row">
+            <select><option value="">Bowl type</option><option>Right arm fast</option><option>Right arm fast-medium</option><option>Right arm medium</option><option>Left arm fast</option><option>Left arm fast-medium</option><option>Left arm medium</option><option>Right arm off-break</option><option>Right arm leg-break</option><option>Left arm orthodox</option><option>Left arm wrist spin</option></select>
+            <input type="text" placeholder="Role e.g. Opening bowler" style="width:230px;border:1.5px solid var(--grey-border);border-radius:5px;padding:5px 10px;font-family:'DM Sans',sans-serif;font-size:12px;">
+            <button class="threat-badge threat-UNKNOWN" onclick="cycleThreat(this)">THREAT: UNKNOWN</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('bowlersContainer').appendChild(card);
+}
+</script>
+
+</body>
+</html>
